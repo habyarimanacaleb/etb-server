@@ -35,7 +35,7 @@ erDiagram
         string role
     }
     PROJECTS {
-        ObjectId _id PK
+        ObjectId  _id  PK
         string title
         string description
         date startDate
