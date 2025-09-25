@@ -1,6 +1,10 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { Application } from "express";
+import swaggerUiDist from "swagger-ui-dist";
+
+const swaggerDistPath = swaggerUiDist.getAbsoluteFSPath();
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -16,7 +20,7 @@ const options: swaggerJSDoc.Options = {
         description: "Local development server",
       },
       {
-        url: "https://etb-server-wine.vercel.app/",
+        url: "https://etb-server-wine.vercel.app/api",
         description: "Production server",
       },
     ],
@@ -27,7 +31,8 @@ const options: swaggerJSDoc.Options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 export function swaggerDocs(app: Application): void {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use("/api-docs", express.static(swaggerDistPath));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   console.log(
     ` Swagger Docs available at http://localhost:${process.env.PORT || 5000}/api-docs`
