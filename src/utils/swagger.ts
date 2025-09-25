@@ -1,10 +1,14 @@
 import swaggerJSDoc from "swagger-jsdoc";
-import express from "express";
+import express, { Application } from "express";
 import swaggerUi from "swagger-ui-express";
-import { Application } from "express";
 import swaggerUiDist from "swagger-ui-dist";
 
 const swaggerDistPath = swaggerUiDist.getAbsoluteFSPath();
+
+const apisPath =
+  process.env.NODE_ENV === "development"
+    ? "src/routes/*.ts"
+    : "dist/routes/*.js";
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -15,26 +19,33 @@ const options: swaggerJSDoc.Options = {
       description: "API documentation for ETB (Engineering Tech Build) server",
     },
     servers: [
-       {
-        url: "http://localhost:5000/api",
-        description: "Local development server",
-      },
       {
-        url: "https://etb-server-wine.vercel.app/api",
-        description: "Production server",
+        url: process.env.NODE_ENV === "development"
+          ? "http://localhost:5000/api"
+          : `${process.env.BASE_URL}/api`,
+        description: "Server URL",
       },
     ],
   },
-  apis: ["./src/routes/*.ts"], // path to your route files
+  apis: [apisPath], // dynamic path for routes
 };
 
 const swaggerSpec = swaggerJSDoc(options);
 
 export function swaggerDocs(app: Application): void {
+  // Serve swagger.json
+  app.get("/api-docs/swagger.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+  });
+
+  // Serve Swagger UI
   app.use("/api-docs", express.static(swaggerDistPath));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerUrl: "/api-docs/swagger.json"
+  }));
 
   console.log(
-    ` Swagger Docs available at http://localhost:${process.env.PORT || 5000}/api-docs`
+    `Swagger Docs available at ${process.env.BASE_URL || "http://localhost:5000"}/api-docs`
   );
 }
