@@ -1,14 +1,14 @@
 import swaggerJSDoc from "swagger-jsdoc";
-import express, { Application } from "express";
 import swaggerUi from "swagger-ui-express";
-import swaggerUiDist from "swagger-ui-dist";
-
-const swaggerDistPath = swaggerUiDist.getAbsoluteFSPath();
+import { Application } from "express";
 
 const apisPath =
   process.env.NODE_ENV === "development"
-    ? "src/routes/*.ts"
-    : "dist/routes/*.js";
+    ? "./src/routes/*.ts"
+    : "./dist/routes/*.js";
+
+
+
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -21,31 +21,21 @@ const options: swaggerJSDoc.Options = {
     servers: [
       {
         url: process.env.NODE_ENV === "development"
-          ? "http://localhost:5000/api"
-          : `${process.env.BASE_URL}/api`,
-        description: "Server URL",
+    ? "http://localhost:5000/api"
+    : `${process.env.BASE_URL}/api`
+
       },
     ],
   },
-  apis: [apisPath], // dynamic path for routes
+  apis: [apisPath], // path to your route files
 };
 
 const swaggerSpec = swaggerJSDoc(options);
 
 export function swaggerDocs(app: Application): void {
-  // Serve swagger.json
-  app.get("/api-docs/swagger.json", (req, res) => {
-    res.setHeader("Content-Type", "application/json");
-    res.send(swaggerSpec);
-  });
-
-  // Serve Swagger UI
-  app.use("/api-docs", express.static(swaggerDistPath));
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    swaggerUrl: "/api-docs/swagger.json"
-  }));
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   console.log(
-    `Swagger Docs available at ${process.env.BASE_URL || "http://localhost:5000"}/api-docs`
+    `📄 Swagger Docs available at http://localhost:${process.env.PORT || 5000}/api-docs`
   );
 }
