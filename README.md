@@ -22,49 +22,6 @@ It provides **RESTful APIs** for handling users, projects, tasks, and collaborat
 - **Docs (optional):** Swagger / Postman  
 
 ---
-
-##  Database Schema (MongoDB ERD-like Structure)
-
-```mermaid
-erDiagram
-    USERS {
-        ObjectId _id PK
-        string name
-        string email
-        string password
-        string role
-    }
-    PROJECTS {
-        ObjectId  _id  PK
-        string title
-        string description
-        date startDate
-        date endDate
-        ObjectId ownerId FK
-    }
-    TASKS {
-        ObjectId _id PK
-        string title
-        string details
-        string status
-        ObjectId projectId FK
-        ObjectId assignedTo FK
-    }
-    COLLABORATIONS {
-        ObjectId _id PK
-        ObjectId userId FK
-        ObjectId projectId FK
-        string role
-    }
-
-    USERS ||--o{ PROJECTS : "owns"
-    USERS ||--o{ TASKS : "assigned"
-    PROJECTS ||--o{ TASKS : "has"
-    USERS ||--o{ COLLABORATIONS : "joins"
-    PROJECTS ||--o{ COLLABORATIONS : "invites"
-
----
-
 # 📦 Requirements
 
 ###Make sure you have installed:
@@ -143,5 +100,48 @@ erDiagram
 
 ---
  
-Would you like me to also add a **section for Swagger/Postman API docs** so collaborators can easily test your REST APIs?
+---
+
+##  Database Schema (MongoDB ERD-like Structure)
+
+```mermaid
+erDiagram
+    USERS {
+        ObjectId _id PK
+        string name
+        string email
+        string password
+        string role
+    }
+    PROJECTS {
+        ObjectId  _id  PK
+        string title
+        string description
+        date startDate
+        date endDate
+        ObjectId ownerId FK
+    }
+    TASKS {
+        ObjectId _id PK
+        string title
+        string details
+        string status
+        ObjectId projectId FK
+        ObjectId assignedTo FK
+    }
+    COLLABORATIONS {
+        ObjectId _id PK
+        ObjectId userId FK
+        ObjectId projectId FK
+        string role
+    }
+
+    USERS ||--o{ PROJECTS : "owns"
+    USERS ||--o{ TASKS : "assigned"
+    PROJECTS ||--o{ TASKS : "has"
+    USERS ||--o{ COLLABORATIONS : "joins"
+    PROJECTS ||--o{ COLLABORATIONS : "invites"
+
+---
+
 
