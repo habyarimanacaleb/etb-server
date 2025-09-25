@@ -30,7 +30,7 @@ const router = Router();
 
 /**
  * @swagger
- * /register:
+ * /auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Users]
@@ -61,7 +61,7 @@ router.post("/register", registerUserValidator, validate, registerUser);
 
 /**
  * @swagger
- * /send-otp:
+ * /auth/send-otp:
  *   post:
  *     summary: Send OTP for verification
  *     tags: [Users]
@@ -86,7 +86,7 @@ router.post("/send-otp", sendOTP);
 
 /**
  * @swagger
- * /verify-otp:
+ * /auth/verify-otp:
  *   post:
  *     summary: Verify OTP to complete registration
  *     tags: [Users]
@@ -114,7 +114,7 @@ router.post("/verify-otp", verifyOTP);
 
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: Login a user
  *     tags: [Users]
@@ -142,7 +142,7 @@ router.post("/login", loginUser);
 
 /**
  * @swagger
- * /google:
+ * /auth/google:
  *   post:
  *     summary: Authenticate user with Google OAuth
  *     tags: [Users]
@@ -156,7 +156,7 @@ router.post("/google", googleAuth);
 
 /**
  * @swagger
- * /users:
+ * /auth/users:
  *   get:
  *     summary: Get all users
  *     tags:
@@ -176,7 +176,7 @@ router.get("/users", getUsers);
 
 /**
  * @swagger
- * /user/{id}:
+ * /auth/user/{id}:
  *   get:
  *     summary: Get user by ID
  *     tags: [Users]
@@ -197,7 +197,7 @@ router.get("/user/:id", getUserById);
 
 /**
  * @swagger
- * /user/{id}:
+ * /auth/user/{id}:
  *   put:
  *     summary: Update user profile (with optional avatar upload)
  *     tags:
@@ -241,7 +241,7 @@ router.put(
 
 /**
  * @swagger
- * /{id}/status:
+ * /auth/{id}/status:
  *   get:
  *     summary: Get user status
  *     tags: [Users]
@@ -260,7 +260,7 @@ router.get("/:id/status", getUserStatus);
 
 /**
  * @swagger
- * /{id}/status:
+ * /auth/{id}/status:
  *   put:
  *     summary: Update user status
  *     tags: [Users]
@@ -289,7 +289,7 @@ router.put("/:id/status", updateUserStatus);
 
 /**
  * @swagger
- * /user/{id}/deactivate:
+ * /auth/user/{id}/deactivate:
  *   put:
  *     summary: Deactivate user
  *     tags: [Users]
@@ -308,7 +308,7 @@ router.put("/user/:id/deactivate", deactivateUser);
 
 /**
  * @swagger
- * /user/{id}:
+ * /auth/user/{id}:
  *   delete:
  *     summary: Delete user
  *     tags: [Users]
@@ -327,7 +327,7 @@ router.delete("/user/:id", deleteUser);
 
 /**
  * @swagger
- * /logout:
+ * /auth/logout:
  *   post:
  *     summary: Logout user
  *     tags: [Users]
