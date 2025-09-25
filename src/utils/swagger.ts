@@ -33,9 +33,18 @@ const options: swaggerJSDoc.Options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 export function swaggerDocs(app: Application): void {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  // Serve swagger.json
+  app.get("/api-docs/swagger.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+  });
+
+  // Serve Swagger UI
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(null, {
+    swaggerUrl: "/api-docs/swagger.json" // <-- explicitly tell UI where spec is
+  }));
 
   console.log(
-    `📄 Swagger Docs available at http://localhost:${process.env.PORT || 5000}/api-docs`
+    `📄 Swagger Docs available at ${process.env.BASE_URL || "http://localhost:5000"}/api-docs`
   );
 }
