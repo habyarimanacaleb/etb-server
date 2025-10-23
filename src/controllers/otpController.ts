@@ -22,8 +22,6 @@ export const sendOTP = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists" });
 
-    // ✅ CREATE THE TRANSPorter HERE, INSIDE THE FUNCTION
-    // Now process.env will be fully loaded
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,

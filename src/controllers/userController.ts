@@ -44,7 +44,7 @@ export const loginUser = async (req: Request, res: Response) => {
 // Get all users
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find().sort({ createdAt: -1 }); // latest first
+    const users = await User.find().sort({ createdAt: -1 });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Error retrieving users", error });

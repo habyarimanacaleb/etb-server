@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 8080;
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173","https://tech-builder-club.netlify.app","https://etb-server.onrender.com"], // your frontend origin
+  origin: ["http://localhost:5174","https://tech-builder-club.netlify.app","https://etb-server.onrender.com"], // your frontend origin
   credentials: true,
 }));
 
