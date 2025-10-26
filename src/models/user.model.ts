@@ -1,13 +1,16 @@
 import { Schema, model, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+import { ref } from "process";
 
 export interface IUser extends Document {
+  _id: string;
   name: string;
   email: string;
   password?: string;
   googleId?: string;
   role: "student" | "mentor" | "admin";
-  status:string
+  status: string;
+  userId?: Schema.Types.ObjectId;
   avatar?: string;
   cohort?: Schema.Types.ObjectId;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -18,14 +21,19 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "Cohort" },
     googleId: { type: String },
-    role: { type: String, enum: ["student", "mentor", "admin"], default: "student" },
+    role: {
+      type: String,
+      enum: ["student", "mentor", "admin"],
+      default: "student",
+    },
     avatar: { type: String },
     status: {
-  type: String,
-  enum: ["active", "inactive", "suspended"],
-  default: "active"
-},
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
     cohort: { type: Schema.Types.ObjectId, ref: "Cohort" },
   },
   { timestamps: true }
@@ -40,7 +48,9 @@ userSchema.pre("save", async function (next) {
 });
 
 // Compare password method
-userSchema.methods.comparePassword = async function (candidatePassword: string) {
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+) {
   return bcrypt.compare(candidatePassword, this.password as string);
 };
 

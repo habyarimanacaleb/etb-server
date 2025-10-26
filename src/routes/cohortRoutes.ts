@@ -1,18 +1,29 @@
-// src/routes/cohort.routes.ts
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import {
   createCohort,
   getAllCohorts,
   getCohortDetails,
-  enrollStudent,
+  assignStudentToCohort,
+  removeStudentFromCohort,
+  updateCohort,
+  deleteCohort,
 } from "../controllers/cohortController";
-import { protect, authorizeRoles } from "../middleware/authMiddleware";
+// import { protect, authorizeRoles } from "../middleware/authMiddleware";
 
 const router = Router();
 
-router.post("/", protect, authorizeRoles("admin"), createCohort);
-router.get("/", protect, getAllCohorts);
-router.get("/:id", protect, getCohortDetails);
-router.post("/:id/enroll", protect, enrollStudent);
+router.post("/", createCohort);
+
+router.get("/", getAllCohorts);
+
+router.get("/:id", getCohortDetails);
+
+router.post("/assign", assignStudentToCohort);
+
+router.post("/remove", removeStudentFromCohort);
+
+router.put("/:id", updateCohort);
+
+router.delete("/:id", deleteCohort);
 
 export default router;

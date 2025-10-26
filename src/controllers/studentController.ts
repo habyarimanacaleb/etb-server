@@ -1,26 +1,112 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import Student from "../models/student";
 import Cohort from "../models/cohort";
-import jwt from "jsonwebtoken";
-import bcrypt from 'bcryptjs'
+import nodemailer from "nodemailer";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+ const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
 
-// Create a new student
+
+
 export const createStudent = async (req: Request, res: Response) => {
   try {
-    const student = await Student.create(req.body);
-    if(student){
-        res.status(402).json({mess:"Student already exist"})
+    const {
+      name,
+      email,
+      phone,
+      education,
+      program,
+      experience,
+      startDate,
+      motivation,
+      referral,
+      cohortId,
+    } = req.body;
+
+    // ✅ Step 1: Check if student already exists
+    let student = await Student.findOne({ email });
+
+    if (student) {
+      // Check if already part of this cohort
+      const alreadyInCohort = await Cohort.findOne({
+        _id: cohortId,
+        "students.email": email,
+      });
+
+      if (alreadyInCohort) {
+        return res
+          .status(400)
+          .json({ message: "Student already joined this cohort" });
+      }
+    } else {
+      // Create new student record
+      student = new Student({
+        name,
+        email,
+        phone,
+        education,
+        program,
+        experience,
+        startDate,
+        motivation,
+        referral,
+        cohort: cohortId ? new Types.ObjectId(cohortId) : undefined,
+      });
     }
-    await student.save()
-    res.status(201).json(student);
+
+    // ✅ Step 2: Assign student to a cohort if cohortId is provided
+    if (cohortId) {
+      const cohort = await Cohort.findById(cohortId);
+      if (!cohort) {
+        return res.status(404).json({ message: "Cohort not found" });
+      }
+
+      // Push full student object snapshot (embedded)
+      cohort.students.push({
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        education: student.education,
+        program: student.program,
+        experience: student.experience,
+        startDate: student.startDate,
+        motivation: student.motivation,
+        referral: student.referral,
+      });
+
+      await cohort.save();
+
+      student.cohort = cohort._id as Types.ObjectId;
+    }
+    await student.save();
+    await transporter.sendMail({
+      from: `"ETB Club" <${process.env.EMAIL_USER}>`,
+      to: student.email,
+      subject: "Welcome to ETB Club 🎉",
+      text: `Hello ${student.name}, welcome to the ETB Club! We're excited to have you in the ${program} program.`,
+    });
+
+    return res.status(201).json({
+      message: "Student successfully created and assigned to cohort",
+      student,
+    });
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    console.error("Error creating student:", err);
+    return res.status(500).json({ message: err.message });
   }
 };
 
-// Get all students
 export const getAllStudents = async (_req: Request, res: Response) => {
   try {
     const students = await Student.find();
@@ -30,7 +116,6 @@ export const getAllStudents = async (_req: Request, res: Response) => {
   }
 };
 
-// Get student by ID with cohorts
 export const getStudentById = async (req: Request, res: Response) => {
   try {
     const student = await Student.findById(req.params.id);
@@ -43,7 +128,6 @@ export const getStudentById = async (req: Request, res: Response) => {
   }
 };
 
-// Update student info
 export const updateStudent = async (req: Request, res: Response) => {
   try {
     const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -54,7 +138,6 @@ export const updateStudent = async (req: Request, res: Response) => {
   }
 };
 
-// Delete student
 export const deleteStudent = async (req: Request, res: Response) => {
   try {
     const student = await Student.findByIdAndDelete(req.params.id);

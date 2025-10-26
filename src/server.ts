@@ -8,6 +8,8 @@ import userRoutes from "./routes/userRoutes";
 import studentCohort from "./routes/studentRoutes"
 import CohortInform from "./routes/cohortRoutes"
 import {swaggerDocs} from "./utils/swagger";
+import programRoutes from "./routes/programRoutes";
+import projectRoutes from "./routes/projectRoutes";
 
 dotenv.config();
 
@@ -21,7 +23,8 @@ const PORT = process.env.PORT || 8080;
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5174","https://tech-builder-club.netlify.app","https://etb-server.onrender.com"], // your frontend origin
+  origin: ["http://localhost:5174","http://localhost:5173","https://tech-builder-club.netlify.app","https://etb-server.onrender.com"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
 
@@ -36,6 +39,8 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/auth", userRoutes);
 app.use("/api/cohort", studentCohort);
 app.use("/api/cohort-inform", CohortInform);
+app.use("/api/projects", projectRoutes);
+app.use("/api/programs", programRoutes);
 
 // Swagger Docs
 swaggerDocs(app);

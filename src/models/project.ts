@@ -2,23 +2,22 @@ import { Schema, model, Document } from "mongoose";
 
 export interface IProject extends Document {
   title: string;
+  category: string; // e.g., "IoT", "Mechatronics", "Software"
   description: string;
-  image?: string;
-  author: Schema.Types.ObjectId;
-  tools:string[];
-  createdAt: Date;
-  updatedAt: Date;
+  tools: string[];
 }
 
 const projectSchema = new Schema<IProject>(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: true, unique: true },
+    category: { type: String, required: true },
     description: { type: String, required: true },
-    image: { type: String },
-    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    tools: { type: [String] }
+    tools: [{ type: String }],
   },
   { timestamps: true }
 );
+
+// Optimize query performance
+projectSchema.index({ title: 1 });
 
 export default model<IProject>("Project", projectSchema);

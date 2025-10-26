@@ -1,15 +1,20 @@
-// src/middleware/auth.middleware.ts
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import Jwt from "jsonwebtoken";
-import Student, { IStudent } from "../models/student";
+import User, { IUser } from "../models/user.model";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
+// Extend Express Request type to include user
 export interface AuthRequest extends Request {
-  student?: IStudent;
+  user?: IUser;
 }
 
-export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
+// Protect middleware
+export const protect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -20,20 +25,21 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 
   try {
     const decoded: any = Jwt.verify(token, JWT_SECRET);
-    const student = await Student.findById(decoded.id).select("-password");
-    if (!student) return res.status(401).json({ message: "Not authorized, student not found" });
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) return res.status(401).json({ message: "Not authorized, user not found" });
 
-    req.student = student;
+    (req as AuthRequest).user = user;
     next();
   } catch (error) {
     return res.status(401).json({ message: "Not authorized, token failed" });
   }
 };
 
-// Role-based access
-export const authorizeRoles = (...roles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.student || !roles.includes(req.student.role)) {
+// Role-based middleware
+export const authorizeRoles = (...roles: string[]): RequestHandler => {
+  return (req, res, next) => {
+    const authReq = req as AuthRequest;
+    if (!authReq.user || !roles.includes(authReq.user.role || "student")) {
       return res.status(403).json({ message: "Forbidden: insufficient role" });
     }
     next();

@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IStudent extends Document {
   name: string;
@@ -12,6 +12,7 @@ export interface IStudent extends Document {
   role: "guest" | "student" | "admin";
   referral: string;
   password?: string;
+  cohort?: Types.ObjectId;
 }
 
 const studentSchema = new Schema<IStudent>(
@@ -26,7 +27,8 @@ const studentSchema = new Schema<IStudent>(
     motivation: { type: String },
     role: {type:String,enum:["guest","student","admin"],default:"student"},
     referral: { type: String },
-    password: { type: String }, // optional for auth if needed
+    cohort: { type: Schema.Types.ObjectId, ref: "Cohort" },
+    password: { type: String },
   },
   { timestamps: true }
 );

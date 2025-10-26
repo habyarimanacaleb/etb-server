@@ -6,10 +6,15 @@ import { sendOTP } from "./otpController";
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 // Generate JWT
-const generateToken = (id: string) => {
-  return Jwt.sign({ id }, JWT_SECRET, { expiresIn: "1d" });
-};
+interface TokenPayload {
+  id: string;
+}
 
+const generateToken = (payload: TokenPayload) => {
+  return Jwt.sign(payload, JWT_SECRET, {
+    expiresIn: "1d", // token valid for 1 day
+  });
+};
 // @desc Register user → send OTP
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -25,22 +30,44 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user || !user.password) {
+    // 1. Find user and include password field
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
+    // 2. Check password
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
 
-    const token = generateToken(user.email);
+    // 3. Generate token with user ID
+    const token = generateToken({ id: user._id.toString() });
 
-    res.json({ token, user });
+    // 4. Set cookie securely
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    // 5. Return user data (exclude password)
+    const userObj = user.toObject();
+    const { password: _, ...userData } = userObj;
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: userData,
+    });
   } catch (error: any) {
+    console.error("Login error:", error.message);
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
-
 // Get all users
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -96,16 +123,18 @@ export const googleAuth = async (req: Request, res: Response) => {
     if (!user) {
       user = new User({ name, email, googleId, avatar });
       await user.save();
-      console.log("user saved to etbclubdb ", user);
+      console.log("User saved to etbclubdb:", user);
     }
 
-    const token = generateToken(user.email.toString());
+    // Pass { id: ... } to match TokenPayload
+    const token = generateToken({ id: user._id.toString() });
 
     res.json({ token, user });
   } catch (error: any) {
     res.status(500).json({ msg: "Google auth error", error: error.message });
   }
 };
+
 
 // Get user status by ID
 export const getUserStatus = async (req: Request, res: Response) => {

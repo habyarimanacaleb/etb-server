@@ -8,8 +8,6 @@ import Jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
-// ✅ REMOVED transporter creation from here
-
 // Send OTP
 export const sendOTP = async (req: Request, res: Response) => {
   try {
@@ -59,7 +57,7 @@ export const sendOTP = async (req: Request, res: Response) => {
       from: `"ETB Club" <${process.env.EMAIL_USER}>`, // Use it here too
       to: email,
       subject: "Your OTP Code",
-      text: `Hello ${name}, your OTP code is: ${otp}. It expires in 5 minutes.`,
+      text: `Thank you for reachout  ${name}, your OTP code is: ${otp}. It will be expired in 5 minutes.`,
     });
 
     res.status(200).json({ message: "OTP sent to your email" ,otp: hashedOtp});
