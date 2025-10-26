@@ -1,5 +1,8 @@
-import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+
+import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -10,8 +13,8 @@ import CohortInform from "./routes/cohortRoutes"
 import {swaggerDocs} from "./utils/swagger";
 import programRoutes from "./routes/programRoutes";
 import projectRoutes from "./routes/projectRoutes";
+import contactRoutes from "./routes/contactRoutes";
 
-dotenv.config();
 
 // Connect to MongoDB
 connectDB();
@@ -41,6 +44,7 @@ app.use("/api/cohort", studentCohort);
 app.use("/api/cohort-inform", CohortInform);
 app.use("/api/projects", projectRoutes);
 app.use("/api/programs", programRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Swagger Docs
 swaggerDocs(app);

@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const cohortController_1 = require("../controllers/cohortController");
+// import { protect, authorizeRoles } from "../middleware/authMiddleware";
+const router = (0, express_1.Router)();
+router.post("/", cohortController_1.createCohort);
+router.get("/", cohortController_1.getAllCohorts);
+router.get("/:id", cohortController_1.getCohortDetails);
+router.post("/assign", cohortController_1.assignStudentToCohort);
+router.post("/remove", cohortController_1.removeStudentFromCohort);
+router.put("/:id", cohortController_1.updateCohort);
+router.delete("/:id", cohortController_1.deleteCohort);
+exports.default = router;
